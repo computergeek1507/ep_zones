@@ -13,8 +13,8 @@ import 'widgets/radar_painter.dart';
 
 enum _Drag { none, move, corner }
 
-/// Which units to show in the coordinate readouts.
-enum _Units { mm, inch, both }
+/// Which units to show in the coordinate readouts and grid.
+enum _Units { mm, inch }
 
 /// The core screen: live radar with editable zones. Drag a corner handle to
 /// resize, drag a zone body to move; edits commit to openHAB on release.
@@ -37,7 +37,7 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
   int _cornerId = 0;
   Offset _lastWorld = Offset.zero;
   bool _linking = false;
-  _Units _units = _Units.both;
+  _Units _units = _Units.mm;
 
   /// Zone indices with local edits not yet written to the device.
   final Set<int> _dirty = {};
@@ -49,18 +49,15 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
   String _unitsLabel() => switch (_units) {
     _Units.mm => 'mm',
     _Units.inch => 'in',
-    _Units.both => 'mm+in',
   };
 
   String _zoneReadout(EpZone z) {
     final inside = z.count > 0 ? '    ${z.count} inside' : '';
-    final mm = '${_pairMm(z.left, z.top)} to ${_pairMm(z.right, z.bottom)} mm';
-    final inch =
-        '${_pairIn(z.left, z.top)} to ${_pairIn(z.right, z.bottom)} in';
     final body = switch (_units) {
-      _Units.mm => mm,
-      _Units.inch => inch,
-      _Units.both => '$mm  /  $inch',
+      _Units.mm =>
+        '${_pairMm(z.left, z.top)} to ${_pairMm(z.right, z.bottom)} mm',
+      _Units.inch =>
+        '${_pairIn(z.left, z.top)} to ${_pairIn(z.right, z.bottom)} in',
     };
     return 'Z${z.index}:  $body$inside';
   }
@@ -68,8 +65,6 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
   String _targetReadout(EpTarget t) => switch (_units) {
     _Units.mm => 'T${t.index} ${_pairMm(t.x, t.y)} mm',
     _Units.inch => 'T${t.index} ${_pairIn(t.x, t.y)} in',
-    _Units.both =>
-      'T${t.index} ${_pairMm(t.x, t.y)} mm / ${_pairIn(t.x, t.y)} in',
   };
 
   DeviceManager get m => widget.manager;
@@ -114,10 +109,10 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
               _liveBadge(),
               Tooltip(
                 message:
-                    'Units & grid — switch mm/metres, inches/feet, or both',
+                    'Units & grid — switch between mm/metres and inches/feet',
                 child: TextButton(
                   onPressed: () => setState(
-                    () => _units = _Units.values[(_units.index + 1) % 3],
+                    () => _units = _Units.values[(_units.index + 1) % 2],
                   ),
                   style: TextButton.styleFrom(foregroundColor: Colors.white),
                   child: Text(_unitsLabel()),
