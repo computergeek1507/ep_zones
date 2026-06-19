@@ -17,8 +17,11 @@ enum _Drag { none, move, corner }
 class ZoneEditorPage extends StatefulWidget {
   final DeviceManager manager;
   final String deviceId;
-  const ZoneEditorPage(
-      {super.key, required this.manager, required this.deviceId});
+  const ZoneEditorPage({
+    super.key,
+    required this.manager,
+    required this.deviceId,
+  });
 
   @override
   State<ZoneEditorPage> createState() => _ZoneEditorPageState();
@@ -64,11 +67,12 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
               children: [
                 Text(device.label),
                 if (device.host != null)
-                  Text(device.host!,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.white70)),
+                  Text(
+                    device.host!,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                  ),
               ],
             ),
             actions: [
@@ -101,20 +105,26 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
     final (label, color) = m.demo
         ? ('DEMO', Colors.purpleAccent)
         : m.directMode
-            ? ('ESP', Colors.cyanAccent)
-            : m.usingSse
-                ? ('LIVE', Colors.greenAccent)
-                : ('POLL', Colors.orangeAccent);
+        ? ('ESP', Colors.cyanAccent)
+        : m.usingSse
+        ? ('LIVE', Colors.greenAccent)
+        : ('POLL', Colors.orangeAccent);
     return Center(
       child: Container(
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(10)),
-        child: Text(label,
-            style: TextStyle(
-                color: color, fontSize: 11, fontWeight: FontWeight.bold)),
+          color: color.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: color,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
@@ -143,7 +153,8 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
                 ? const SizedBox(
                     width: 14,
                     height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2))
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : const Icon(Icons.link, size: 18),
             label: const Text('Create & link'),
             onPressed: _linking ? null : () => _createLinks(device),
@@ -159,11 +170,15 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
     final n = await m.createMissingLinks(device.id);
     if (!mounted) return;
     setState(() => _linking = false);
-    messenger.showSnackBar(SnackBar(
-      content: Text(n > 0
-          ? 'Created and linked $n Item(s). Values will populate shortly.'
-          : 'No Items created${m.lastCommitError != null ? ": ${m.lastCommitError}" : "."}'),
-    ));
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          n > 0
+              ? 'Created and linked $n Item(s). Values will populate shortly.'
+              : 'No Items created${m.lastCommitError != null ? ": ${m.lastCommitError}" : "."}',
+        ),
+      ),
+    );
   }
 
   Widget _radar(EpDevice device) {
@@ -200,7 +215,10 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
           child: CustomPaint(
             size: size,
             painter: RadarPainter(
-                device: device, t: t, selectedZone: _selected),
+              device: device,
+              t: t,
+              selectedZone: _selected,
+            ),
           ),
         );
       },
@@ -346,9 +364,11 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
               children: [
                 for (final z in device.zones)
                   ChoiceChip(
-                    label: Text('Z${z.index}'
-                        '${_dirty.contains(z.index) ? " *" : ""}'
-                        '${z.occupied ? " •" : ""}'),
+                    label: Text(
+                      'Z${z.index}'
+                      '${_dirty.contains(z.index) ? " *" : ""}'
+                      '${z.occupied ? " •" : ""}',
+                    ),
                     selected: _selected == z.index,
                     onSelected: z.isComplete
                         ? (_) => setState(() => _selected = z.index)
@@ -392,18 +412,17 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
               sel == null
                   ? 'Select a zone, or tap "New zone". Drag to move/resize — edits stay local until you tap Save.'
                   : 'Z${sel.index}:  (${sel.left.round()}, ${sel.top.round()}) '
-                      'to (${sel.right.round()}, ${sel.bottom.round()}) mm'
-                      '${sel.count > 0 ? "    ${sel.count} inside" : ""}',
+                        'to (${sel.right.round()}, ${sel.bottom.round()}) mm'
+                        '${sel.count > 0 ? "    ${sel.count} inside" : ""}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             if (_dirty.isNotEmpty)
               Text(
                 'Unsaved: ${(_dirty.toList()..sort()).map((i) => "Z$i").join(", ")}'
                 ' — tap Save to write to the device.',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Colors.orangeAccent),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.orangeAccent),
               ),
             _targetsLine(device),
           ],
@@ -415,27 +434,29 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
   Widget _targetsLine(EpDevice device) {
     final present = device.targets.where((t) => t.present).toList();
     if (present.isEmpty) {
-      return Text('No targets detected',
-          style: Theme.of(context).textTheme.bodySmall);
+      return Text(
+        'No targets detected',
+        style: Theme.of(context).textTheme.bodySmall,
+      );
     }
     return Text(
       present
-          .map((t) =>
-              'T${t.index}(${t.x.round()}, ${t.y.round()})')
+          .map((t) => 'T${t.index}(${t.x.round()}, ${t.y.round()})')
           .join('   '),
-      style: Theme.of(context)
-          .textTheme
-          .bodySmall
-          ?.copyWith(color: const Color(0xFFFF8A80)),
+      style: Theme.of(
+        context,
+      ).textTheme.bodySmall?.copyWith(color: const Color(0xFFFF8A80)),
     );
   }
 
   Future<void> _newZone(EpDevice device) async {
     final editable = device.zones.where((z) => z.isComplete).toList();
     if (editable.isEmpty) {
-      _snack(m.missingLinkCount(device.id) > 0
-          ? 'Link Items first — tap "Create & link" above.'
-          : 'No editable zones found for this device.');
+      _snack(
+        m.missingLinkCount(device.id) > 0
+            ? 'Link Items first — tap "Create & link" above.'
+            : 'No editable zones found for this device.',
+      );
       return;
     }
     final z = editable.firstWhere(
@@ -501,10 +522,12 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
     if (!mounted) return;
     final ok = m.lastCommitError == null;
     if (ok) setState(() => _dirty.remove(z.index));
-    _snack(ok
-        ? 'Saved Z${z.index} to device  (X ${z.left.round()}…${z.right.round()}, '
-            'Y ${z.top.round()}…${z.bottom.round()} mm)'
-        : 'Save failed: ${m.lastCommitError}');
+    _snack(
+      ok
+          ? 'Saved Z${z.index} to device  (X ${z.left.round()}…${z.right.round()}, '
+                'Y ${z.top.round()}…${z.bottom.round()} mm)'
+          : 'Save failed: ${m.lastCommitError}',
+    );
   }
 
   Future<void> _saveAll(EpDevice device) async {
@@ -535,15 +558,14 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
   }
 
   void _snack(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 }
 
 /// The four editable corners of a zone in world mm (mirrors RadarPainter).
 List<Offset> zoneCorners(EpZone z) => [
-      Offset(z.beginX, z.beginY),
-      Offset(z.endX, z.beginY),
-      Offset(z.beginX, z.endY),
-      Offset(z.endX, z.endY),
-    ];
+  Offset(z.beginX, z.beginY),
+  Offset(z.endX, z.beginY),
+  Offset(z.beginX, z.endY),
+  Offset(z.endX, z.endY),
+];

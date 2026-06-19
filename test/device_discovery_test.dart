@@ -15,8 +15,7 @@ void main() {
       num('EPL_Office_Zone1_BeginY', '1000 mm', min: 0, max: 7560),
       num('EPL_Office_Zone1_EndX', '0 mm'),
       num('EPL_Office_Zone1_EndY', '3000 mm'),
-      OhItem(
-          name: 'EPL_Office_Zone1_Occupancy', type: 'Switch', state: 'ON'),
+      OhItem(name: 'EPL_Office_Zone1_Occupancy', type: 'Switch', state: 'ON'),
       num('EPL_Office_Target1_X', '500 mm'),
       num('EPL_Office_Target1_Y', '2500 mm'),
       num('Some_Other_Item', '42'),

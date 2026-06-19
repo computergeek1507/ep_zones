@@ -16,7 +16,8 @@ void main() {
     });
 
     test('parses a quantity value with a unit', () {
-      const data = '{"topic":"openhab/items/EPL_Office_Zone1_BeginX/state",'
+      const data =
+          '{"topic":"openhab/items/EPL_Office_Zone1_BeginX/state",'
           '"payload":"{\\"type\\":\\"Quantity\\",\\"value\\":\\"-2000 mm\\"}",'
           '"type":"ItemStateEvent"}';
       final e = parseOhEvent(data)!;
@@ -48,12 +49,19 @@ void main() {
     test('boolState recognises ON/OPEN', () {
       expect(OhItem(name: 'x', type: 'Switch', state: 'ON').boolState, isTrue);
       expect(
-          OhItem(name: 'x', type: 'Contact', state: 'OPEN').boolState, isTrue);
-      expect(OhItem(name: 'x', type: 'Switch', state: 'OFF').boolState, isFalse);
+        OhItem(name: 'x', type: 'Contact', state: 'OPEN').boolState,
+        isTrue,
+      );
+      expect(
+        OhItem(name: 'x', type: 'Switch', state: 'OFF').boolState,
+        isFalse,
+      );
     });
     test('non-numeric state yields null', () {
-      expect(OhItem(name: 'x', type: 'Number', state: 'NULL').numericState,
-          isNull);
+      expect(
+        OhItem(name: 'x', type: 'Number', state: 'NULL').numericState,
+        isNull,
+      );
     });
   });
 }

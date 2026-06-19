@@ -19,7 +19,9 @@ Future<SseConnection> openSse(String url, {String? bearerToken}) async {
   if (response.statusCode != 200) {
     client.close();
     throw http.ClientException(
-        'SSE connect failed: HTTP ${response.statusCode}', Uri.parse(url));
+      'SSE connect failed: HTTP ${response.statusCode}',
+      Uri.parse(url),
+    );
   }
   return _IoSseConnection(client, response);
 }

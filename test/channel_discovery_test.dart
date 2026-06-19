@@ -3,28 +3,41 @@ import 'package:ep_zones/models/naming_convention.dart';
 import 'package:ep_zones/models/oh_thing.dart';
 import 'package:ep_zones/services/channel_discovery.dart';
 
-OhChannel ch(String id, {List<String> links = const [], String type = 'Number'}) =>
-    OhChannel(
-      uid: 'esphome:device:40ea2c136a:$id',
-      id: id,
-      itemType: type,
-      linkedItems: links,
-    );
+OhChannel ch(
+  String id, {
+  List<String> links = const [],
+  String type = 'Number',
+}) => OhChannel(
+  uid: 'esphome:device:40ea2c136a:$id',
+  id: id,
+  itemType: type,
+  linkedItems: links,
+);
 
 void main() {
   group('channelRole', () {
     const dev = 'esphome:device:40ea2c136a';
     test('maps target and zone channel ids', () {
-      expect(channelRole(dev, 'target_1_x'),
-          const ItemRole(dev, RoleKind.targetX, 1));
-      expect(channelRole(dev, 'target_3_y'),
-          const ItemRole(dev, RoleKind.targetY, 3));
-      expect(channelRole(dev, 'zone_2_begin_x'),
-          const ItemRole(dev, RoleKind.zoneBeginX, 2));
-      expect(channelRole(dev, 'zone_4_end_y'),
-          const ItemRole(dev, RoleKind.zoneEndY, 4));
-      expect(channelRole(dev, 'zone_1_occupancy'),
-          const ItemRole(dev, RoleKind.zoneOccupancy, 1));
+      expect(
+        channelRole(dev, 'target_1_x'),
+        const ItemRole(dev, RoleKind.targetX, 1),
+      );
+      expect(
+        channelRole(dev, 'target_3_y'),
+        const ItemRole(dev, RoleKind.targetY, 3),
+      );
+      expect(
+        channelRole(dev, 'zone_2_begin_x'),
+        const ItemRole(dev, RoleKind.zoneBeginX, 2),
+      );
+      expect(
+        channelRole(dev, 'zone_4_end_y'),
+        const ItemRole(dev, RoleKind.zoneEndY, 4),
+      );
+      expect(
+        channelRole(dev, 'zone_1_occupancy'),
+        const ItemRole(dev, RoleKind.zoneOccupancy, 1),
+      );
     });
 
     test('accepts both count variants and is case-insensitive', () {
@@ -35,9 +48,14 @@ void main() {
 
     test('maps config channels and rejects unrelated ones', () {
       expect(channelRole(dev, 'max_distance')!.kind, RoleKind.maxDistance);
-      expect(channelRole(dev, 'mmwave_max_distance')!.kind, RoleKind.maxDistance);
-      expect(channelRole(dev, 'installation_angle')!.kind,
-          RoleKind.installationAngle);
+      expect(
+        channelRole(dev, 'mmwave_max_distance')!.kind,
+        RoleKind.maxDistance,
+      );
+      expect(
+        channelRole(dev, 'installation_angle')!.kind,
+        RoleKind.installationAngle,
+      );
       expect(channelRole(dev, 'illuminance'), isNull);
       expect(channelRole(dev, 'esp_temperature'), isNull);
     });
@@ -80,7 +98,9 @@ void main() {
         label: 'Foo',
         thingTypeUID: 'mqtt:topic',
         status: 'ONLINE',
-        channels: [ch('zone_1_begin_x', links: ['x'])],
+        channels: [
+          ch('zone_1_begin_x', links: ['x']),
+        ],
       );
       expect(groupThingsIntoDevices([other]), isEmpty);
     });
@@ -103,7 +123,10 @@ void main() {
       expect(missing, hasLength(1));
       expect(missing.single.channelId, 'zone_1_begin_x');
       // Item name derives from the (globally unique) channel UID.
-      expect(missing.single.itemName, 'esphome_device_40ea2c136a_zone_1_begin_x');
+      expect(
+        missing.single.itemName,
+        'esphome_device_40ea2c136a_zone_1_begin_x',
+      );
     });
   });
 }

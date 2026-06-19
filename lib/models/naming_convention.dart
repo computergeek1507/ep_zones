@@ -115,11 +115,13 @@ class NamingConvention {
     final pre = RegExp.escape(prefix);
     return _roleSpecs.map((spec) {
       final core = spec.tokens
-          .map((t) => t == 'Target%i'
-              ? 'Target(?<idx>\\d+)'
-              : t == 'Zone%i'
-                  ? 'Zone(?<idx>\\d+)'
-                  : RegExp.escape(t))
+          .map(
+            (t) => t == 'Target%i'
+                ? 'Target(?<idx>\\d+)'
+                : t == 'Zone%i'
+                ? 'Zone(?<idx>\\d+)'
+                : RegExp.escape(t),
+          )
           .join(sep);
       final re = RegExp('^$pre$sep(?<dev>.+)$sep$core\$');
       return MapEntry(spec.kind, re);
@@ -157,7 +159,7 @@ class NamingConvention {
   Map<String, String> toJson() => {'prefix': prefix, 'separator': separator};
 
   factory NamingConvention.fromJson(Map<String, dynamic> j) => NamingConvention(
-        prefix: (j['prefix'] as String?) ?? 'EPL',
-        separator: (j['separator'] as String?) ?? '_',
-      );
+    prefix: (j['prefix'] as String?) ?? 'EPL',
+    separator: (j['separator'] as String?) ?? '_',
+  );
 }

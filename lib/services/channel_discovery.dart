@@ -70,7 +70,9 @@ List<EpDevice> groupThingsIntoDevices(List<OhThing> things) {
     }
     if (matched) devices.add(b.build());
   }
-  devices.sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+  devices.sort(
+    (a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()),
+  );
   return devices;
 }
 
@@ -81,13 +83,15 @@ List<MissingLink> missingLinks(OhThing thing) {
     final role = channelRole(thing.uid, ch.id);
     if (role == null) continue;
     if (ch.linkedItems.isNotEmpty) continue;
-    out.add(MissingLink(
-      thingUid: thing.uid,
-      channelUid: ch.uid,
-      channelId: ch.id,
-      itemType: ch.itemType ?? 'Number',
-      role: role.kind,
-    ));
+    out.add(
+      MissingLink(
+        thingUid: thing.uid,
+        channelUid: ch.uid,
+        channelId: ch.id,
+        itemType: ch.itemType ?? 'Number',
+        role: role.kind,
+      ),
+    );
   }
   return out;
 }

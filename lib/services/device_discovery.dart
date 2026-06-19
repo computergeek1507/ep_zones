@@ -10,12 +10,15 @@ import '../models/oh_item.dart';
 /// seeded from each Item's current state; ranges (min/max) come from the corner
 /// Items' stateDescription, falling back to LD2450 defaults.
 List<EpDevice> groupItemsIntoDevices(
-    List<OhItem> items, NamingConvention conv) {
+  List<OhItem> items,
+  NamingConvention conv,
+) {
   final byId = <String, _DeviceBuilder>{};
   for (final item in items) {
     final role = conv.parse(item.name);
     if (role == null) continue;
-    byId.putIfAbsent(role.deviceId, () => _DeviceBuilder(role.deviceId))
+    byId
+        .putIfAbsent(role.deviceId, () => _DeviceBuilder(role.deviceId))
         .add(role, item);
   }
   final devices = byId.values.map((b) => b.build()).toList();
@@ -71,45 +74,41 @@ class _DeviceBuilder {
   _ZoneBuilder _z(int i) => zones.putIfAbsent(i, () => _ZoneBuilder());
 
   EpDevice build() {
-    final targetList = (targets.keys.toList()..sort())
-        .map((i) {
-          final t = targets[i]!;
-          return EpTarget(
-            index: i,
-            xItem: t.x?.name,
-            yItem: t.y?.name,
-            activeItem: t.active?.name,
-            x: t.x?.numericState ?? 0,
-            y: t.y?.numericState ?? 0,
-            active: t.active?.boolState ?? false,
-          );
-        })
-        .toList();
+    final targetList = (targets.keys.toList()..sort()).map((i) {
+      final t = targets[i]!;
+      return EpTarget(
+        index: i,
+        xItem: t.x?.name,
+        yItem: t.y?.name,
+        activeItem: t.active?.name,
+        x: t.x?.numericState ?? 0,
+        y: t.y?.numericState ?? 0,
+        active: t.active?.boolState ?? false,
+      );
+    }).toList();
 
-    final zoneList = (zones.keys.toList()..sort())
-        .map((i) {
-          final z = zones[i]!;
-          return EpZone(
-            index: i,
-            beginXItem: z.beginX?.name,
-            beginYItem: z.beginY?.name,
-            endXItem: z.endX?.name,
-            endYItem: z.endY?.name,
-            occupancyItem: z.occupancy?.name,
-            countItem: z.count?.name,
-            beginX: z.beginX?.numericState ?? 0,
-            beginY: z.beginY?.numericState ?? 0,
-            endX: z.endX?.numericState ?? 0,
-            endY: z.endY?.numericState ?? 0,
-            occupied: z.occupancy?.boolState ?? false,
-            count: (z.count?.numericState ?? 0).round(),
-            minX: z.beginX?.min ?? z.endX?.min,
-            maxX: z.beginX?.max ?? z.endX?.max,
-            minY: z.beginY?.min ?? z.endY?.min,
-            maxY: z.beginY?.max ?? z.endY?.max,
-          );
-        })
-        .toList();
+    final zoneList = (zones.keys.toList()..sort()).map((i) {
+      final z = zones[i]!;
+      return EpZone(
+        index: i,
+        beginXItem: z.beginX?.name,
+        beginYItem: z.beginY?.name,
+        endXItem: z.endX?.name,
+        endYItem: z.endY?.name,
+        occupancyItem: z.occupancy?.name,
+        countItem: z.count?.name,
+        beginX: z.beginX?.numericState ?? 0,
+        beginY: z.beginY?.numericState ?? 0,
+        endX: z.endX?.numericState ?? 0,
+        endY: z.endY?.numericState ?? 0,
+        occupied: z.occupancy?.boolState ?? false,
+        count: (z.count?.numericState ?? 0).round(),
+        minX: z.beginX?.min ?? z.endX?.min,
+        maxX: z.beginX?.max ?? z.endX?.max,
+        minY: z.beginY?.min ?? z.endY?.min,
+        maxY: z.beginY?.max ?? z.endY?.max,
+      );
+    }).toList();
 
     final bounds = _computeBounds(zoneList);
 

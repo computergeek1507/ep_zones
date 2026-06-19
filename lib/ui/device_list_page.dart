@@ -18,8 +18,11 @@ class DeviceListPage extends StatelessWidget {
           IconButton(
             tooltip: 'Item mapping',
             icon: const Icon(Icons.list_alt),
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => MappingPreviewPage(manager: manager))),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => MappingPreviewPage(manager: manager),
+              ),
+            ),
           ),
           IconButton(
             tooltip: 'Connection settings',
@@ -68,7 +71,8 @@ class DeviceListPage extends StatelessWidget {
               final activeZones = d.zones.where((z) => z.isActive).length;
               final missing = manager.missingLinkCount(d.id);
               final present = d.targets.where((t) => t.present).length;
-              final counts = '$activeZones/${d.zones.length} zones active   '
+              final counts =
+                  '$activeZones/${d.zones.length} zones active   '
                   '$present target(s)'
                   '${missing > 0 ? "   ⚠ $missing unlinked" : ""}';
               final detail = d.host != null && d.host != d.label
@@ -88,9 +92,12 @@ class DeviceListPage extends StatelessWidget {
                 subtitle: Text(detail != null ? '$detail\n$counts' : counts),
                 isThreeLine: detail != null,
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
                     builder: (_) =>
-                        ZoneEditorPage(manager: manager, deviceId: d.id))),
+                        ZoneEditorPage(manager: manager, deviceId: d.id),
+                  ),
+                ),
               );
             },
           );

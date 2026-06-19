@@ -71,8 +71,9 @@ class DeviceManager extends ChangeNotifier {
         final esphome = things.where((t) => t.isEsphome).length;
         if (esphome == 0) {
           throw const FormatException(
-              'Connected, but found no ESPHome Things. Is the device added '
-              'via the ESPHome binding?');
+            'Connected, but found no ESPHome Things. Is the device added '
+            'via the ESPHome binding?',
+          );
         }
       } else {
         await c.testConnection();
@@ -98,7 +99,9 @@ class DeviceManager extends ChangeNotifier {
         await _connectDirect();
       } else {
         _client = OpenhabClient(
-            baseUrl: settings.normalizedBaseUrl, token: settings.token);
+          baseUrl: settings.normalizedBaseUrl,
+          token: settings.token,
+        );
         await _loadDevices();
       }
       connected = true;
@@ -125,7 +128,8 @@ class DeviceManager extends ChangeNotifier {
     devices = d == null ? [] : [d];
     _rebuildIndex();
     if (d == null) {
-      error = 'Connected to $host but found no zone/target entities. Is '
+      error =
+          'Connected to $host but found no zone/target entities. Is '
           'web_server enabled and are the zone entities present?';
     }
     final stream = await esp.openStateStream();
@@ -166,7 +170,10 @@ class DeviceManager extends ChangeNotifier {
       devices = groupThingsIntoDevices(_things);
     } else {
       _things = [];
-      devices = groupItemsIntoDevices(await client.listItems(), settings.convention);
+      devices = groupItemsIntoDevices(
+        await client.listItems(),
+        settings.convention,
+      );
     }
     _rebuildIndex();
     await _seedStates();
@@ -214,8 +221,11 @@ class DeviceManager extends ChangeNotifier {
     var created = 0;
     for (final ml in missingLinks(thing)) {
       try {
-        await client.createItem(ml.itemName, ml.itemType,
-            label: '${thing.label} ${ml.channelId}');
+        await client.createItem(
+          ml.itemName,
+          ml.itemType,
+          label: '${thing.label} ${ml.channelId}',
+        );
         await client.linkItemToChannel(ml.itemName, ml.channelUid);
         created++;
       } catch (e) {
@@ -268,7 +278,8 @@ class DeviceManager extends ChangeNotifier {
       final client = _client;
       if (client == null) return;
       await Future.wait(
-          cmds.entries.map((e) => client.sendCommand(e.key, e.value)));
+        cmds.entries.map((e) => client.sendCommand(e.key, e.value)),
+      );
     } catch (e) {
       lastCommitError = e.toString();
       notifyListeners();

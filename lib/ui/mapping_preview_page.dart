@@ -19,7 +19,8 @@ class MappingPreviewPage extends StatelessWidget {
           final devices = manager.devices;
           if (devices.isEmpty) {
             return const Center(
-                child: Text('No EP Lite Items matched the convention.'));
+              child: Text('No EP Lite Items matched the convention.'),
+            );
           }
           return ListView(
             children: [
@@ -27,14 +28,18 @@ class MappingPreviewPage extends StatelessWidget {
                 ExpansionTile(
                   initiallyExpanded: true,
                   title: Text(d.label),
-                  subtitle: Text(d.label == d.id
-                      ? '${d.zones.length} zone(s), ${d.targets.length} target(s)'
-                      : '${d.id}\n${d.zones.length} zone(s), ${d.targets.length} target(s)'),
+                  subtitle: Text(
+                    d.label == d.id
+                        ? '${d.zones.length} zone(s), ${d.targets.length} target(s)'
+                        : '${d.id}\n${d.zones.length} zone(s), ${d.targets.length} target(s)',
+                  ),
                   children: [
                     if (manager.missingLinkCount(d.id) > 0)
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 4),
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
                         child: Row(
                           children: [
                             Expanded(
@@ -70,7 +75,8 @@ class MappingPreviewPage extends StatelessWidget {
                         leading: const Icon(Icons.my_location, size: 20),
                         title: Text('Target ${t.index}'),
                         subtitle: Text(
-                            'X: ${t.xItem ?? "—"}   Y: ${t.yItem ?? "—"}'),
+                          'X: ${t.xItem ?? "—"}   Y: ${t.yItem ?? "—"}',
+                        ),
                       ),
                   ],
                 ),
@@ -84,11 +90,15 @@ class MappingPreviewPage extends StatelessWidget {
   Future<void> _createLinks(BuildContext context, String deviceId) async {
     final messenger = ScaffoldMessenger.of(context);
     final n = await manager.createMissingLinks(deviceId);
-    messenger.showSnackBar(SnackBar(
-      content: Text(n > 0
-          ? 'Created and linked $n Item(s).'
-          : 'No Items created${manager.lastCommitError != null ? ": ${manager.lastCommitError}" : "."}'),
-    ));
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          n > 0
+              ? 'Created and linked $n Item(s).'
+              : 'No Items created${manager.lastCommitError != null ? ": ${manager.lastCommitError}" : "."}',
+        ),
+      ),
+    );
   }
 
   String _zoneDetail(EpZone z) {

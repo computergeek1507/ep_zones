@@ -65,16 +65,15 @@ class Settings {
     NamingConvention? convention,
     bool? forcePolling,
     int? pollMs,
-  }) =>
-      Settings(
-        baseUrl: baseUrl ?? this.baseUrl,
-        token: token ?? this.token,
-        discoveryMode: discoveryMode ?? this.discoveryMode,
-        deviceHost: deviceHost ?? this.deviceHost,
-        convention: convention ?? this.convention,
-        forcePolling: forcePolling ?? this.forcePolling,
-        pollMs: pollMs ?? this.pollMs,
-      );
+  }) => Settings(
+    baseUrl: baseUrl ?? this.baseUrl,
+    token: token ?? this.token,
+    discoveryMode: discoveryMode ?? this.discoveryMode,
+    deviceHost: deviceHost ?? this.deviceHost,
+    convention: convention ?? this.convention,
+    forcePolling: forcePolling ?? this.forcePolling,
+    pollMs: pollMs ?? this.pollMs,
+  );
 }
 
 class SettingsStore {
@@ -89,12 +88,14 @@ class SettingsStore {
       return Settings(
         baseUrl: (j['baseUrl'] as String?) ?? '',
         token: (j['token'] as String?) ?? '',
-        discoveryMode: DiscoveryMode.values.asNameMap()[
-                j['discoveryMode'] as String? ?? ''] ??
+        discoveryMode:
+            DiscoveryMode.values.asNameMap()[j['discoveryMode'] as String? ??
+                ''] ??
             DiscoveryMode.thing,
         deviceHost: (j['deviceHost'] as String?) ?? '',
         convention: NamingConvention.fromJson(
-            (j['convention'] as Map<String, dynamic>?) ?? const {}),
+          (j['convention'] as Map<String, dynamic>?) ?? const {},
+        ),
         forcePolling: (j['forcePolling'] as bool?) ?? false,
         pollMs: (j['pollMs'] as int?) ?? 1000,
       );

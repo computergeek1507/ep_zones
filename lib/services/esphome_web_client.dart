@@ -52,8 +52,8 @@ class EsphomeWebClient {
     required String host,
     this.timeout = const Duration(seconds: 8),
     http.Client? httpClient,
-  })  : baseUrl = normalizeHost(host),
-        _http = httpClient ?? http.Client();
+  }) : baseUrl = normalizeHost(host),
+       _http = httpClient ?? http.Client();
 
   static String normalizeHost(String h) {
     h = h.trim();
@@ -70,17 +70,20 @@ class EsphomeWebClient {
       resp = await _http.get(Uri.parse(baseUrl)).timeout(timeout);
     } catch (e) {
       throw http.ClientException(
-          'Could not reach $baseUrl. Check the IP, and that the device is on '
-          'with web_server enabled in its ESPHome config. ($e)');
+        'Could not reach $baseUrl. Check the IP, and that the device is on '
+        'with web_server enabled in its ESPHome config. ($e)',
+      );
     }
     if (resp.statusCode == 401) {
       throw http.ClientException(
-          'ESPHome web server requires authentication (HTTP 401).');
+        'ESPHome web server requires authentication (HTTP 401).',
+      );
     }
     if (resp.statusCode != 200) {
       throw http.ClientException(
-          'ESPHome web server returned HTTP ${resp.statusCode}. Is web_server '
-          'enabled on the device?');
+        'ESPHome web server returned HTTP ${resp.statusCode}. Is web_server '
+        'enabled on the device?',
+      );
     }
   }
 
@@ -95,7 +98,8 @@ class EsphomeWebClient {
     final (domain, rawId) = splitEspId(id);
     final v = formatCommandValue(value);
     final url = Uri.parse(
-        '$baseUrl/$domain/${Uri.encodeComponent(rawId)}/set?value=$v');
+      '$baseUrl/$domain/${Uri.encodeComponent(rawId)}/set?value=$v',
+    );
     Object? lastErr;
     for (var attempt = 0; attempt < 3; attempt++) {
       final client = http.Client();
@@ -104,10 +108,12 @@ class EsphomeWebClient {
         if (resp.statusCode == 200) return;
         if (resp.statusCode == 404) {
           throw http.ClientException(
-              'Set "$rawId" failed: HTTP 404 (no entity by that name). ($url)');
+            'Set "$rawId" failed: HTTP 404 (no entity by that name). ($url)',
+          );
         }
         lastErr = http.ClientException(
-            'Set "$rawId" failed: HTTP ${resp.statusCode}. ($url)');
+          'Set "$rawId" failed: HTTP ${resp.statusCode}. ($url)',
+        );
       } on http.ClientException catch (e) {
         if (e.message.contains('404')) rethrow;
         lastErr = e; // e.g. "Connection closed before full header" → retry
@@ -123,8 +129,9 @@ class EsphomeWebClient {
 
   /// Collects a one-shot snapshot of entity states by briefly listening to the
   /// `/events` stream (the web server emits the full state set on connect).
-  Future<List<EspEvent>> snapshot(
-      {Duration window = const Duration(milliseconds: 2500)}) async {
+  Future<List<EspEvent>> snapshot({
+    Duration window = const Duration(milliseconds: 2500),
+  }) async {
     final conn = await openSse('$baseUrl/events');
     final seen = <String, EspEvent>{};
     final sub = conn.dataEvents.listen((data) {
@@ -145,10 +152,14 @@ class EsphomeWebClient {
         .map(parseEspEvent)
         .where((e) => e != null)
         .cast<EspEvent>()
-        .transform(StreamTransformer.fromHandlers(handleDone: (sink) {
-      conn.close();
-      sink.close();
-    }));
+        .transform(
+          StreamTransformer.fromHandlers(
+            handleDone: (sink) {
+              conn.close();
+              sink.close();
+            },
+          ),
+        );
   }
 
   void close() {
@@ -171,10 +182,10 @@ EspEvent? parseEspEvent(String data) {
     final idA = j['id'] as String?;
     final idB = j['name_id'] as String?;
     // Prefer whichever is name-based (contains '/').
-    final canonical = [idA, idB].firstWhere(
-      (c) => c != null && c.contains('/'),
-      orElse: () => idA ?? idB,
-    );
+    final canonical = [
+      idA,
+      idB,
+    ].firstWhere((c) => c != null && c.contains('/'), orElse: () => idA ?? idB);
     if (canonical == null) return null;
     final (domain, rawId) = splitEspId(canonical);
     final state = (j['state'] ?? j['value'])?.toString() ?? '';

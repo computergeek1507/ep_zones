@@ -28,8 +28,8 @@ class OpenhabClient {
     String token = '',
     this.timeout = const Duration(seconds: 8),
     http.Client? httpClient,
-  })  : token = _normToken(token),
-        _http = httpClient ?? http.Client();
+  }) : token = _normToken(token),
+       _http = httpClient ?? http.Client();
 
   /// Trims whitespace and strips an accidental "Bearer " prefix.
   static String _normToken(String t) {
@@ -47,9 +47,10 @@ class OpenhabClient {
   void _ensureOk(http.Response resp, String what) {
     if (resp.statusCode == 401 || resp.statusCode == 403) {
       throw http.ClientException(
-          '$what: HTTP ${resp.statusCode} Unauthorized. openHAB needs an '
-          'admin API token (especially for Things). In openHAB: your profile → '
-          'Create API Token, then paste it here.');
+        '$what: HTTP ${resp.statusCode} Unauthorized. openHAB needs an '
+        'admin API token (especially for Things). In openHAB: your profile → '
+        'Create API Token, then paste it here.',
+      );
     }
     if (resp.statusCode != 200) {
       throw http.ClientException('$what: HTTP ${resp.statusCode}');
@@ -74,8 +75,10 @@ class OpenhabClient {
 
   Future<OhItem> getItem(String name) async {
     final resp = await _http
-        .get(_uri('/rest/items/${Uri.encodeComponent(name)}'),
-            headers: _authHeaders)
+        .get(
+          _uri('/rest/items/${Uri.encodeComponent(name)}'),
+          headers: _authHeaders,
+        )
         .timeout(timeout);
     if (resp.statusCode != 200) {
       throw http.ClientException('GET item $name failed: ${resp.statusCode}');
@@ -92,10 +95,12 @@ class OpenhabClient {
           body: formatCommandValue(value),
         )
         .timeout(timeout);
-    if (resp.statusCode != 200 && resp.statusCode != 201 &&
+    if (resp.statusCode != 200 &&
+        resp.statusCode != 201 &&
         resp.statusCode != 202) {
       throw http.ClientException(
-          'Command to $name failed: HTTP ${resp.statusCode}');
+        'Command to $name failed: HTTP ${resp.statusCode}',
+      );
     }
   }
 
@@ -128,7 +133,8 @@ class OpenhabClient {
         .timeout(timeout);
     if (resp.statusCode != 200 && resp.statusCode != 201) {
       throw http.ClientException(
-          'Create item $name failed: HTTP ${resp.statusCode}');
+        'Create item $name failed: HTTP ${resp.statusCode}',
+      );
     }
   }
 
@@ -136,8 +142,10 @@ class OpenhabClient {
   Future<void> linkItemToChannel(String itemName, String channelUid) async {
     final resp = await _http
         .put(
-          _uri('/rest/links/${Uri.encodeComponent(itemName)}/'
-              '${Uri.encodeComponent(channelUid)}'),
+          _uri(
+            '/rest/links/${Uri.encodeComponent(itemName)}/'
+            '${Uri.encodeComponent(channelUid)}',
+          ),
           headers: {..._authHeaders, 'Content-Type': 'application/json'},
           body: jsonEncode({
             'itemName': itemName,
@@ -148,19 +156,24 @@ class OpenhabClient {
         .timeout(timeout);
     if (resp.statusCode != 200 && resp.statusCode != 201) {
       throw http.ClientException(
-          'Link $itemName→$channelUid failed: HTTP ${resp.statusCode}');
+        'Link $itemName→$channelUid failed: HTTP ${resp.statusCode}',
+      );
     }
   }
 
   /// Quick connectivity/auth check. Throws on failure.
   Future<void> testConnection() async {
     final resp = await _http
-        .get(_uri('/rest/items?fields=name&recursive=false'),
-            headers: _authHeaders)
+        .get(
+          _uri('/rest/items?fields=name&recursive=false'),
+          headers: _authHeaders,
+        )
         .timeout(timeout);
     if (resp.statusCode == 401 || resp.statusCode == 403) {
-      throw http.ClientException('Unauthorized (HTTP ${resp.statusCode}) — '
-          'check the API token');
+      throw http.ClientException(
+        'Unauthorized (HTTP ${resp.statusCode}) — '
+        'check the API token',
+      );
     }
     if (resp.statusCode != 200) {
       throw http.ClientException('openHAB returned HTTP ${resp.statusCode}');
@@ -169,7 +182,8 @@ class OpenhabClient {
 
   /// Opens the SSE state stream and yields parsed [OhStateEvent]s.
   Future<Stream<OhStateEvent>> openStateStream() async {
-    final url = '$baseUrl/rest/events?topics='
+    final url =
+        '$baseUrl/rest/events?topics='
         '${Uri.encodeQueryComponent('openhab/items/*/statechanged')}';
     final conn = await openSse(url, bearerToken: token);
     _sseConn = conn;
@@ -183,8 +197,10 @@ class OpenhabClient {
   /// Polling fallback: fetch current state of all Items as state events.
   Future<List<OhStateEvent>> pollStates() async {
     final resp = await _http
-        .get(_uri('/rest/items?fields=name,state&recursive=false'),
-            headers: _authHeaders)
+        .get(
+          _uri('/rest/items?fields=name,state&recursive=false'),
+          headers: _authHeaders,
+        )
         .timeout(timeout);
     if (resp.statusCode != 200) {
       throw http.ClientException('poll failed: HTTP ${resp.statusCode}');
@@ -193,8 +209,12 @@ class OpenhabClient {
     if (body is! List) return const [];
     return body
         .whereType<Map<String, dynamic>>()
-        .map((j) => OhStateEvent(
-            j['name'] as String, (j['state'] as String?) ?? 'NULL'))
+        .map(
+          (j) => OhStateEvent(
+            j['name'] as String,
+            (j['state'] as String?) ?? 'NULL',
+          ),
+        )
         .toList(growable: false);
   }
 
@@ -207,7 +227,8 @@ class OpenhabClient {
   /// Ensures the underlying SSE connection is closed when the stream
   /// subscription is cancelled.
   StreamTransformer<OhStateEvent, OhStateEvent> _closeOnCancel(
-      SseConnection conn) {
+    SseConnection conn,
+  ) {
     return StreamTransformer.fromHandlers(
       handleDone: (sink) {
         conn.close();

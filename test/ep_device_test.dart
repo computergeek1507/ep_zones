@@ -5,28 +5,29 @@ import 'package:ep_zones/models/ep_zone.dart';
 
 void main() {
   EpDevice device() => EpDevice(
-        id: 'Office',
-        targets: [
-          EpTarget(
-              index: 1,
-              xItem: 'EPL_Office_Target1_X',
-              yItem: 'EPL_Office_Target1_Y'),
-        ],
-        zones: [
-          EpZone(
-            index: 1,
-            beginXItem: 'EPL_Office_Zone1_BeginX',
-            beginYItem: 'EPL_Office_Zone1_BeginY',
-            endXItem: 'EPL_Office_Zone1_EndX',
-            endYItem: 'EPL_Office_Zone1_EndY',
-            occupancyItem: 'EPL_Office_Zone1_Occupancy',
-            beginX: -1000,
-            beginY: 1000,
-            endX: 1000,
-            endY: 3000,
-          ),
-        ],
-      );
+    id: 'Office',
+    targets: [
+      EpTarget(
+        index: 1,
+        xItem: 'EPL_Office_Target1_X',
+        yItem: 'EPL_Office_Target1_Y',
+      ),
+    ],
+    zones: [
+      EpZone(
+        index: 1,
+        beginXItem: 'EPL_Office_Zone1_BeginX',
+        beginYItem: 'EPL_Office_Zone1_BeginY',
+        endXItem: 'EPL_Office_Zone1_EndX',
+        endYItem: 'EPL_Office_Zone1_EndY',
+        occupancyItem: 'EPL_Office_Zone1_Occupancy',
+        beginX: -1000,
+        beginY: 1000,
+        endX: 1000,
+        endY: 3000,
+      ),
+    ],
+  );
 
   test('applyState routes Item updates to the right field', () {
     final d = device();

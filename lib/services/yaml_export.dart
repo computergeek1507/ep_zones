@@ -16,10 +16,12 @@ String buildZonesYaml(EpDevice d, {DateTime? now}) {
   sb.writeln('#');
   for (final z in d.zones) {
     if (!z.isComplete) continue;
-    sb.writeln('# Zone ${z.index}: '
-        'X ${z.left.round()}…${z.right.round()}, '
-        'Y ${z.top.round()}…${z.bottom.round()}'
-        '${z.isActive ? "" : "  (inactive)"}');
+    sb.writeln(
+      '# Zone ${z.index}: '
+      'X ${z.left.round()}…${z.right.round()}, '
+      'Y ${z.top.round()}…${z.bottom.round()}'
+      '${z.isActive ? "" : "  (inactive)"}',
+    );
   }
   sb.writeln('substitutions:');
   for (final z in d.zones) {

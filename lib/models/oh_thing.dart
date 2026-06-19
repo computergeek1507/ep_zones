@@ -20,11 +20,18 @@ class OhThing {
     required this.channels,
   });
 
-  bool get isEsphome => uid.startsWith('esphome:') || thingTypeUID.startsWith('esphome:');
+  bool get isEsphome =>
+      uid.startsWith('esphome:') || thingTypeUID.startsWith('esphome:');
 
   /// Device IP/hostname from the Thing config, if the binding exposes one.
   String? get host {
-    for (final key in const ['hostname', 'host', 'ipAddress', 'ip', 'address']) {
+    for (final key in const [
+      'hostname',
+      'host',
+      'ipAddress',
+      'ip',
+      'address',
+    ]) {
       final v = configuration[key];
       if (v is String && v.trim().isNotEmpty) return v.trim();
     }
@@ -40,8 +47,9 @@ class OhThing {
       label: (j['label'] as String?) ?? (j['UID'] as String),
       thingTypeUID: (j['thingTypeUID'] as String?) ?? '',
       status: status is Map ? (status['status'] as String? ?? '') : '',
-      configuration:
-          config is Map<String, dynamic> ? config : const <String, dynamic>{},
+      configuration: config is Map<String, dynamic>
+          ? config
+          : const <String, dynamic>{},
       channels: ch
           .whereType<Map<String, dynamic>>()
           .map(OhChannel.fromJson)

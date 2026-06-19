@@ -50,16 +50,16 @@ class _ConnectionPageState extends State<ConnectionPage> {
   }
 
   Settings _collect() => widget.manager.settings.copyWith(
-        baseUrl: _url.text,
-        token: _token.text,
-        discoveryMode: _mode,
-        deviceHost: _host.text,
-        convention: NamingConvention(
-          prefix: _prefix.text.trim().isEmpty ? 'EPL' : _prefix.text.trim(),
-          separator: _sep.text.isEmpty ? '_' : _sep.text,
-        ),
-        forcePolling: _forcePolling,
-      );
+    baseUrl: _url.text,
+    token: _token.text,
+    discoveryMode: _mode,
+    deviceHost: _host.text,
+    convention: NamingConvention(
+      prefix: _prefix.text.trim().isEmpty ? 'EPL' : _prefix.text.trim(),
+      separator: _sep.text.isEmpty ? '_' : _sep.text,
+    ),
+    forcePolling: _forcePolling,
+  );
 
   Future<void> _test() async {
     setState(() {
@@ -100,8 +100,10 @@ class _ConnectionPageState extends State<ConnectionPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Connection mode',
-              style: Theme.of(context).textTheme.titleSmall),
+          Text(
+            'Connection mode',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: 8),
           SegmentedButton<DiscoveryMode>(
             segments: const [
@@ -125,20 +127,17 @@ class _ConnectionPageState extends State<ConnectionPage> {
             onSelectionChanged: (s) => setState(() => _mode = s.first),
           ),
           const SizedBox(height: 8),
-          Text(
-            switch (_mode) {
-              DiscoveryMode.thing =>
-                'Lists ESPHome Things in openHAB (e.g. esphome:device:…) and '
-                    'maps their channels automatically. Recommended.',
-              DiscoveryMode.directEsphome =>
-                'Talks straight to the device over HTTP — no openHAB. Requires '
-                    'web_server: enabled in the device\'s ESPHome config.',
-              DiscoveryMode.naming =>
-                'Groups openHAB Items by parsing their names with the '
-                    'convention below.',
-            },
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          Text(switch (_mode) {
+            DiscoveryMode.thing =>
+              'Lists ESPHome Things in openHAB (e.g. esphome:device:…) and '
+                  'maps their channels automatically. Recommended.',
+            DiscoveryMode.directEsphome =>
+              'Talks straight to the device over HTTP — no openHAB. Requires '
+                  'web_server: enabled in the device\'s ESPHome config.',
+            DiscoveryMode.naming =>
+              'Groups openHAB Items by parsing their names with the '
+                  'convention below.',
+          }, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 16),
           if (_mode == DiscoveryMode.directEsphome) ...[
             TextField(
@@ -173,8 +172,10 @@ class _ConnectionPageState extends State<ConnectionPage> {
           ],
           if (_mode == DiscoveryMode.naming) ...[
             const SizedBox(height: 12),
-            Text('Item naming convention',
-                style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              'Item naming convention',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -207,7 +208,8 @@ class _ConnectionPageState extends State<ConnectionPage> {
               contentPadding: EdgeInsets.zero,
               title: const Text('Force REST polling (no SSE)'),
               subtitle: const Text(
-                  'Use if live updates do not arrive (e.g. web + token).'),
+                'Use if live updates do not arrive (e.g. web + token).',
+              ),
               value: _forcePolling,
               onChanged: (v) => setState(() => _forcePolling = v),
             ),
@@ -216,13 +218,15 @@ class _ConnectionPageState extends State<ConnectionPage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: (_testOk ? Colors.green : Colors.red)
-                    .withValues(alpha: 0.12),
+                color: (_testOk ? Colors.green : Colors.red).withValues(
+                  alpha: 0.12,
+                ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(_testResult!,
-                  style: TextStyle(
-                      color: _testOk ? Colors.green : Colors.red)),
+              child: Text(
+                _testResult!,
+                style: TextStyle(color: _testOk ? Colors.green : Colors.red),
+              ),
             ),
           ],
           const SizedBox(height: 16),
@@ -240,7 +244,8 @@ class _ConnectionPageState extends State<ConnectionPage> {
                       ? const SizedBox(
                           height: 18,
                           width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Text('Connect'),
                 ),
               ),
@@ -253,8 +258,10 @@ class _ConnectionPageState extends State<ConnectionPage> {
           ),
           if (widget.manager.error != null) ...[
             const SizedBox(height: 12),
-            Text(widget.manager.error!,
-                style: const TextStyle(color: Colors.red)),
+            Text(
+              widget.manager.error!,
+              style: const TextStyle(color: Colors.red),
+            ),
           ],
           const SizedBox(height: 24),
           _setupHelp(context),
@@ -275,8 +282,10 @@ class _ConnectionPageState extends State<ConnectionPage> {
           '(disabled-by-default) target-position and zone number entities.\n',
         ),
         if (_mode == DiscoveryMode.directEsphome) ...[
-          const Text('Direct ESPHome mode',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Direct ESPHome mode',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 6),
           const Text(
             'Talks to the device\'s ESPHome web server over HTTP — openHAB is '
@@ -290,8 +299,10 @@ class _ConnectionPageState extends State<ConnectionPage> {
             'are disabled by default in firmware — enable them for live targets.\n',
           ),
         ] else if (_mode == DiscoveryMode.thing) ...[
-          const Text('openHAB Thing mode',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'openHAB Thing mode',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 6),
           const Text(
             'The app lists Things like esphome:device:xxxxxxxx and maps their '
@@ -300,8 +311,10 @@ class _ConnectionPageState extends State<ConnectionPage> {
             'unlinked, use "Create & link" on the Item mapping screen.\n',
           ),
         ] else ...[
-          const Text('Example Item names for a device called "Office":',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Example Item names for a device called "Office":',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 6),
           _mono(c.example('Office', RoleKind.targetX)),
           _mono(c.example('Office', RoleKind.zoneBeginX)),
@@ -319,7 +332,7 @@ class _ConnectionPageState extends State<ConnectionPage> {
   }
 
   Widget _mono(String s) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Text(s, style: const TextStyle(fontFamily: 'monospace')),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Text(s, style: const TextStyle(fontFamily: 'monospace')),
+  );
 }

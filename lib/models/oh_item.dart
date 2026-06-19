@@ -55,15 +55,15 @@ class OhItem {
 
   /// Returns a copy with a new [state] (used to apply live SSE updates).
   OhItem withState(String newState) => OhItem(
-        name: name,
-        type: type,
-        label: label,
-        state: newState,
-        min: min,
-        max: max,
-        step: step,
-        pattern: pattern,
-      );
+    name: name,
+    type: type,
+    label: label,
+    state: newState,
+    min: min,
+    max: max,
+    step: step,
+    pattern: pattern,
+  );
 
   /// Extracts the leading number from an openHAB state string, ignoring any
   /// trailing unit. Returns null for NULL/UNDEF/non-numeric states.

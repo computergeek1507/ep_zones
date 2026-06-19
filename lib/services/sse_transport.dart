@@ -11,7 +11,8 @@ library;
 
 import 'sse_transport_stub.dart'
     if (dart.library.io) 'sse_transport_io.dart'
-    if (dart.library.js_interop) 'sse_transport_web.dart' as impl;
+    if (dart.library.js_interop) 'sse_transport_web.dart'
+    as impl;
 
 /// An open SSE connection emitting raw `data:` payloads (one per event).
 abstract class SseConnection {
