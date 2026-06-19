@@ -1,5 +1,7 @@
 # EP Zones
 
+[![CI](https://github.com/computergeek1507/ep_zones/actions/workflows/ci.yml/badge.svg)](https://github.com/computergeek1507/ep_zones/actions/workflows/ci.yml)
+
 A cross-platform Flutter app (**Android · Windows · Web**) to view live mmWave targets and
 **visually configure the detection zones** on
 [Everything Presence Lite](https://everythingsmart.io) sensors. It's the openHAB-friendly
