@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/ep_device.dart';
+import '../models/ep_target.dart';
 import '../models/ep_zone.dart';
 import '../services/device_manager.dart';
 import '../services/yaml_export.dart';
@@ -11,6 +12,9 @@ import 'widgets/coord_transform.dart';
 import 'widgets/radar_painter.dart';
 
 enum _Drag { none, move, corner }
+
+/// Which units to show in the coordinate readouts.
+enum _Units { mm, inch, both }
 
 /// The core screen: live radar with editable zones. Drag a corner handle to
 /// resize, drag a zone body to move; edits commit to openHAB on release.
@@ -33,9 +37,42 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
   int _cornerId = 0;
   Offset _lastWorld = Offset.zero;
   bool _linking = false;
+  _Units _units = _Units.both;
 
   /// Zone indices with local edits not yet written to the device.
   final Set<int> _dirty = {};
+
+  // --- unit formatting (mm is the source of truth) ---
+  String _inch(double mm) => (mm / 25.4).toStringAsFixed(1);
+  String _pairMm(double x, double y) => '(${x.round()}, ${y.round()})';
+  String _pairIn(double x, double y) => '(${_inch(x)}, ${_inch(y)})';
+  String _unitsLabel() => switch (_units) {
+    _Units.mm => 'mm',
+    _Units.inch => 'in',
+    _Units.both => 'mm+in',
+  };
+
+  String _zoneReadout(EpZone z) {
+    final inside = z.count > 0 ? '    ${z.count} inside' : '';
+    final mm =
+        'Z${z.index}:  ${_pairMm(z.left, z.top)} to '
+        '${_pairMm(z.right, z.bottom)} mm$inside';
+    final inch =
+        'Z${z.index}:  ${_pairIn(z.left, z.top)} to '
+        '${_pairIn(z.right, z.bottom)} in$inside';
+    return switch (_units) {
+      _Units.mm => mm,
+      _Units.inch => inch,
+      _Units.both => '$mm\n$inch',
+    };
+  }
+
+  String _targetReadout(EpTarget t) => switch (_units) {
+    _Units.mm => 'T${t.index} ${_pairMm(t.x, t.y)} mm',
+    _Units.inch => 'T${t.index} ${_pairIn(t.x, t.y)} in',
+    _Units.both =>
+      'T${t.index} ${_pairMm(t.x, t.y)} mm / ${_pairIn(t.x, t.y)} in',
+  };
 
   DeviceManager get m => widget.manager;
 
@@ -77,6 +114,13 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
             ),
             actions: [
               _liveBadge(),
+              TextButton(
+                onPressed: () => setState(
+                  () => _units = _Units.values[(_units.index + 1) % 3],
+                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.white),
+                child: Text(_unitsLabel()),
+              ),
               IconButton(
                 tooltip: 'Export zones to YAML',
                 onPressed: () => _exportYaml(device),
@@ -411,9 +455,7 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
             Text(
               sel == null
                   ? 'Select a zone, or tap "New zone". Drag to move/resize — edits stay local until you tap Save.'
-                  : 'Z${sel.index}:  (${sel.left.round()}, ${sel.top.round()}) '
-                        'to (${sel.right.round()}, ${sel.bottom.round()}) mm'
-                        '${sel.count > 0 ? "    ${sel.count} inside" : ""}',
+                  : _zoneReadout(sel),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             if (_dirty.isNotEmpty)
@@ -440,9 +482,7 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
       );
     }
     return Text(
-      present
-          .map((t) => 'T${t.index}(${t.x.round()}, ${t.y.round()})')
-          .join('   '),
+      present.map(_targetReadout).join(_units == _Units.both ? '\n' : '   '),
       style: Theme.of(
         context,
       ).textTheme.bodySmall?.copyWith(color: const Color(0xFFFF8A80)),
@@ -522,10 +562,12 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
     if (!mounted) return;
     final ok = m.lastCommitError == null;
     if (ok) setState(() => _dirty.remove(z.index));
+    final coords = _units == _Units.inch
+        ? '${_pairIn(z.left, z.top)} to ${_pairIn(z.right, z.bottom)} in'
+        : '${_pairMm(z.left, z.top)} to ${_pairMm(z.right, z.bottom)} mm';
     _snack(
       ok
-          ? 'Saved Z${z.index} to device  (X ${z.left.round()}…${z.right.round()}, '
-                'Y ${z.top.round()}…${z.bottom.round()} mm)'
+          ? 'Saved Z${z.index} to device  $coords'
           : 'Save failed: ${m.lastCommitError}',
     );
   }
