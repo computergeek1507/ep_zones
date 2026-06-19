@@ -12,6 +12,8 @@ device** over its ESPHome web API, with no home-automation hub at all.
 > up to 4 rectangular zones. This app draws the radar plane, shows targets moving in real time,
 > and lets you drag zone rectangles — writing the coordinates back to the device.
 
+![EP Zones zone editor](docs/screenshot.png)
+
 ## Features
 
 - **Live radar view** — sensor origin, detection fan, moving target dots, zone rectangles.
@@ -81,6 +83,17 @@ lib can break CMake's compiler probe. Build with vcpkg disabled for the session:
 
 ```bat
 "...\VC\Auxiliary\Build\vcvars64.bat" && set VcpkgEnabled=false && flutter build windows
+```
+
+## Releases
+
+Pushing a version tag (`vX.Y.Z`) runs the **Release** workflow, which builds a Windows zip and
+an Android APK and attaches them to the GitHub Release. You can also run it manually from the
+Actions tab to produce build artifacts without a release. The APK is debug-signed (for
+sideloading); add a signing config + secrets for Play Store builds.
+
+```bash
+git tag v1.0.0 && git push origin v1.0.0
 ```
 
 ## License

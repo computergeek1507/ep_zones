@@ -1,0 +1,62 @@
+name: Release
+
+# Builds Windows and Android (APK) artifacts. On a version tag (v*) the builds
+# are also attached to a GitHub Release. Can be run manually for a dry build.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - name: Package
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath ep_zones-windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ep_zones-windows-x64
+          path: ep_zones-windows-x64.zip
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ep_zones-windows-x64.zip
+
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      # Release APK is debug-signed (no keystore configured) — fine for
+      # sideloading. Add a signing config + secrets for Play Store builds.
+      - run: flutter build apk --release
+      - name: Rename APK
+        run: mv build/app/outputs/flutter-apk/app-release.apk ep_zones.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ep_zones-android
+          path: ep_zones.apk
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ep_zones.apk
