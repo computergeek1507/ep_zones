@@ -54,17 +54,14 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
 
   String _zoneReadout(EpZone z) {
     final inside = z.count > 0 ? '    ${z.count} inside' : '';
-    final mm =
-        'Z${z.index}:  ${_pairMm(z.left, z.top)} to '
-        '${_pairMm(z.right, z.bottom)} mm$inside';
-    final inch =
-        'Z${z.index}:  ${_pairIn(z.left, z.top)} to '
-        '${_pairIn(z.right, z.bottom)} in$inside';
-    return switch (_units) {
+    final mm = '${_pairMm(z.left, z.top)} to ${_pairMm(z.right, z.bottom)} mm';
+    final inch = '${_pairIn(z.left, z.top)} to ${_pairIn(z.right, z.bottom)} in';
+    final body = switch (_units) {
       _Units.mm => mm,
       _Units.inch => inch,
-      _Units.both => '$mm\n$inch',
+      _Units.both => '$mm  /  $inch',
     };
+    return 'Z${z.index}:  $body$inside';
   }
 
   String _targetReadout(EpTarget t) => switch (_units) {
@@ -482,7 +479,7 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
       );
     }
     return Text(
-      present.map(_targetReadout).join(_units == _Units.both ? '\n' : '   '),
+      present.map(_targetReadout).join('   '),
       style: Theme.of(
         context,
       ).textTheme.bodySmall?.copyWith(color: const Color(0xFFFF8A80)),
