@@ -87,13 +87,13 @@ class EsphomeWebClient {
     }
   }
 
-  /// Sets a `number` entity (zone coordinate). [id] is the entity's raw SSE id;
-  /// the web server matches by the entity *name*, so [id] should be the
-  /// name-based form (`number/Zone 1 Begin X`) — see [parseEspEvent].
+  /// Sets a `number` entity (zone coordinate). [id] is the entity's raw SSE id
+  /// (`number-zone_1_begin_x` or `number/Zone 1 Begin X`); the web server
+  /// accepts either the object_id or the name in the URL.
   ///
-  /// Uses a fresh connection per call and retries transient "connection closed"
-  /// errors, because the ESP32 AsyncWebServer has few connection slots and
-  /// readily drops reused/extra sockets.
+  /// Sends an empty body (Content-Length: 0) — required by the ESP-IDF web
+  /// server — and uses a fresh connection per call with a retry, because the
+  /// device has few connection slots and drops reused/extra sockets.
   Future<void> setNumber(String id, double value) async {
     final (domain, rawId) = splitEspId(id);
     final v = formatCommandValue(value);
@@ -104,7 +104,9 @@ class EsphomeWebClient {
     for (var attempt = 0; attempt < 3; attempt++) {
       final client = http.Client();
       try {
-        final resp = await client.post(url).timeout(timeout);
+        // Empty body so a Content-Length: 0 header is sent — the ESP-IDF web
+        // server returns 411 (Length Required) for POSTs without it.
+        final resp = await client.post(url, body: '').timeout(timeout);
         if (resp.statusCode == 200) return;
         if (resp.statusCode == 404) {
           throw http.ClientException(
@@ -127,18 +129,39 @@ class EsphomeWebClient {
     throw http.ClientException('$lastErr');
   }
 
-  /// Collects a one-shot snapshot of entity states by briefly listening to the
-  /// `/events` stream (the web server emits the full state set on connect).
+  /// Collects a one-shot snapshot of entity states from the `/events` stream.
+  ///
+  /// The web server dumps all states on connect, but that can start a few
+  /// seconds in (after an initial `ping`). So we collect until the dump goes
+  /// quiet ([quiet] elapses with no new entity) rather than using a fixed
+  /// window, capped at [maxWait].
   Future<List<EspEvent>> snapshot({
-    Duration window = const Duration(milliseconds: 2500),
+    Duration maxWait = const Duration(seconds: 10),
+    Duration quiet = const Duration(milliseconds: 1200),
   }) async {
     final conn = await openSse('$baseUrl/events');
     final seen = <String, EspEvent>{};
+    final completer = Completer<void>();
+    Timer? quietTimer;
+    void finish() {
+      if (!completer.isCompleted) completer.complete();
+    }
+
     final sub = conn.dataEvents.listen((data) {
       final e = parseEspEvent(data);
-      if (e != null) seen[e.id] = e;
-    });
-    await Future<void>.delayed(window);
+      if (e == null) return;
+      final isNew = !seen.containsKey(e.id);
+      seen[e.id] = e;
+      if (isNew) {
+        quietTimer?.cancel();
+        quietTimer = Timer(quiet, finish);
+      }
+    }, onError: (_) => finish());
+
+    final cap = Timer(maxWait, finish);
+    await completer.future;
+    cap.cancel();
+    quietTimer?.cancel();
     await sub.cancel();
     conn.close();
     return seen.values.toList(growable: false);
