@@ -55,7 +55,8 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
   String _zoneReadout(EpZone z) {
     final inside = z.count > 0 ? '    ${z.count} inside' : '';
     final mm = '${_pairMm(z.left, z.top)} to ${_pairMm(z.right, z.bottom)} mm';
-    final inch = '${_pairIn(z.left, z.top)} to ${_pairIn(z.right, z.bottom)} in';
+    final inch =
+        '${_pairIn(z.left, z.top)} to ${_pairIn(z.right, z.bottom)} in';
     final body = switch (_units) {
       _Units.mm => mm,
       _Units.inch => inch,
@@ -111,12 +112,16 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
             ),
             actions: [
               _liveBadge(),
-              TextButton(
-                onPressed: () => setState(
-                  () => _units = _Units.values[(_units.index + 1) % 3],
+              Tooltip(
+                message:
+                    'Units & grid — switch mm/metres, inches/feet, or both',
+                child: TextButton(
+                  onPressed: () => setState(
+                    () => _units = _Units.values[(_units.index + 1) % 3],
+                  ),
+                  style: TextButton.styleFrom(foregroundColor: Colors.white),
+                  child: Text(_unitsLabel()),
                 ),
-                style: TextButton.styleFrom(foregroundColor: Colors.white),
-                child: Text(_unitsLabel()),
               ),
               IconButton(
                 tooltip: 'Export zones to YAML',
@@ -259,6 +264,7 @@ class _ZoneEditorPageState extends State<ZoneEditorPage> {
               device: device,
               t: t,
               selectedZone: _selected,
+              imperial: _units == _Units.inch,
             ),
           ),
         );

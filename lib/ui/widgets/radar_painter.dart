@@ -13,7 +13,15 @@ class RadarPainter extends CustomPainter {
   final CoordTransform t;
   final int? selectedZone;
 
-  RadarPainter({required this.device, required this.t, this.selectedZone});
+  /// When true, the reference grid is drawn in feet instead of metres.
+  final bool imperial;
+
+  RadarPainter({
+    required this.device,
+    required this.t,
+    this.selectedZone,
+    this.imperial = false,
+  });
 
   static const double handleRadius = 9;
 
@@ -37,7 +45,11 @@ class RadarPainter extends CustomPainter {
     final grid = Paint()
       ..color = const Color(0xFF1E2A38)
       ..strokeWidth = 1;
-    const step = 1000.0; // 1 m grid
+    // Grid step: 1 m (metric) or 2 ft (imperial), with matching labels.
+    final step = imperial ? 609.6 : 1000.0;
+    String label(double v) =>
+        imperial ? '${(v / 304.8).round()}ft' : '${(v / 1000).round()}m';
+
     final startX = (device.minX / step).ceil() * step;
     for (double x = startX; x <= device.maxX; x += step) {
       final p1 = t.toCanvas(x, device.minY);
@@ -45,7 +57,7 @@ class RadarPainter extends CustomPainter {
       canvas.drawLine(
         p1,
         p2,
-        x == 0 ? (grid..color = const Color(0xFF35506B)) : grid,
+        x.abs() < 0.5 ? (grid..color = const Color(0xFF35506B)) : grid,
       );
       grid.color = const Color(0xFF1E2A38);
     }
@@ -58,7 +70,7 @@ class RadarPainter extends CustomPainter {
       );
       _label(
         canvas,
-        '${(y / 1000).toStringAsFixed(0)}m',
+        label(y),
         t.toCanvas(device.minX, y) + const Offset(2, 2),
         const Color(0xFF54708A),
         10,
